@@ -22,6 +22,9 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
 
 
 fisica = 0
+mental = 0
+sabiduria = 0
+final = 0
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -30,92 +33,82 @@ logger = logging.getLogger(__name__)
 
 CHOOSING, TYPING_REPLY, TYPING_CHOICE = range(3)
 
-reply_keyboard = [['Acertijo', 'Prueba Fisica'],
+reply_keyboard = [['Prueba de Sabiduria', 'Prueba Fisica'],
                   ['Prueba Mental','Prueba Final'],
                   ['Finalizadas todas las pruebas']]
+
+reply_keyboard_2 = [['Ayuda'],
+                  ['Apañao']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
-
-
-def facts_to_str(user_data):
-    facts = list()
-    for key, value in user_data.items():
-        facts.append('{} - {}'.format(key, value))
-
-    return "\n".join(facts).join(['\n', '\n'])
-
+markup_response = ReplyKeyboardMarkup(reply_keyboard_2, one_time_keyboard=True)
 
 def start(update, context):
-    update.message.reply_text(
-        "Hi! My name is Doctor Botter. I will hold a more complex conversation with you. "
-        "Why don't you tell me something about yourself?",
-        reply_markup=markup)
+
+    bienvenida = "Eyyy,¿que pacha Adrían? Igual te pensabas que esto acababa aqui, lo siento colega pero aun te queda un rato mas de puteo,AVISO: NO INTENTES HACKEARME , he sido programado por uno de los mejores ingenieros de HPE en una tarde, es misión IMPOSIBLE, dicho esto aqui te dejo las misiones que tienes que hacer para desbloquear tu regalo. SUERTE CAMPEÓN!!!!"
+    update.message.reply_text(bienvenida, reply_markup=markup)
 
     return CHOOSING
 
 
-def regular_choice(update, context):
-    text = update.message.text
-    context.user_data['choice'] = text
-    update.message.reply_text(
-        'Your {}? Yes, I would love to hear about that!'.format(text.lower()))
+def custom_choice_ayuda(update, context):
 
-    return TYPING_REPLY
+    update.message.reply_text('Hola, que ase, esto es una prueba para ver si funciona la ayuda',reply_markup=markup)
+
+    return CHOOSING
+
+def custom_choice_hecho(update, context):
+
+    update.message.reply_text('Hola, que ase, esto es una prueba para ver si funciona el panel de HECHO',reply_markup=markup)
+
+    return CHOOSING    
 
 
 def custom_choice(update, context):
-    update.message.reply_text('Bienvenido a la prueba Fisica , la que para tí será la mas sencilla'
-                              'Te veo un poco tenso, hazme 15 burpees')
+    update.message.reply_text('Bienvenido a la prueba de mentira , la que para tí será la mas sencilla'
+                              'Te veo un poco tenso, hazme 15 burpees',reply_markup=markup_response)
 
-    return TYPING_REPLY
+    return TYPING_CHOICE
 
-def custom_choice_acertijo(update, context):
-    update.message.reply_text('Bienvenido a la prueba Fisica , la que para tí será la mas sencilla'
-                              'Te veo un poco tenso, hazme 15 burpees')
+def custom_choice_sabiduria(update, context):
+    update.message.reply_text('Bienvenido a la prueba de Sabiduria '
+                              'Aqui sergio se pondria las pilas')
 
-    return TYPING_REPLY
+    return CHOOSING
 
 def custom_choice_fisica(update, context):
 
     if fisica == 0:
-        update.message.reply_text('Bienvenido a la prueba Fisica , la que para tí será la mas sencilla'
-                              'Te veo un poco tenso, hazme 15 burpees')
+       update.message.reply_text('Bienvenido a la prueba Fisica , la que para tí será la mas sencilla'
+                              'Te veo un poco tenso, hazme 15 burpees',reply_markup=markup_response)
     else : 
         update.message.reply_text('Tampoco te quieras poner tan fuerte campeón.')
 
 
-    return TYPING_REPLY
+    return TYPING_CHOICE
 
 def custom_choice_mental(update, context):
-    update.message.reply_text('Bienvenido a la prueba Fisica , la que para tí será la mas sencilla'
-                              'Te veo un poco tenso, hazme 15 burpees')
+    update.message.reply_text('Bienvenido a la prueba Mental ,'
+                              'Aquí se insertará una prueba')
 
-    return TYPING_REPLY
+    return CHOOSING
 
 def custom_choice_final(update, context):
-    update.message.reply_text('Bienvenido a la prueba Fisica , la que para tí será la mas sencilla'
-                              'Te veo un poco tenso, hazme 15 burpees')
+    update.message.reply_text('Aqui está el Final BOSS, tienes que haber superado las anteriores para poder realizar esta')
 
-    return TYPING_REPLY
+    return CHOOSING
 
 
 def received_information(update, context):
-    user_data = context.user_data
-    text = update.message.text
-    category = user_data['choice']
-    user_data[category] = text
-    del user_data['choice']
 
-    update.message.reply_text("Neat! Just so you know, this is what you already told me:"
-                              "{} You can tell me more, or change your opinion"
-                              " on something.".format(facts_to_str(user_data)),
-                              reply_markup=markup)
+    update.message.reply_text('Has escrito Finalizado?')
+
 
     return CHOOSING
 
 
 def done(update, context):
 
-    if fisica == 1:
+    if fisica == 1 and mental ==1  and sabiduria ==1 and final == 1:
         update.message.reply_text('Enhorabuena, has superado las pruebas, para celebrarlo vamos a tomar algo hasta el gran Capitán, te lo has ganado CRACK!!!')
         return ConversationHandler.END
     else : 
@@ -126,6 +119,50 @@ def done(update, context):
     return ConversationHandler.END
 
 
+def help_command(update, context):
+    
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Help!',reply_markup=markup)
+    global fisica 
+    fisica = 1
+    return CHOOSING
+
+def fisica_done(update, context):
+    
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Enhorabuena, has terminado la prueba Fisica!',reply_markup=markup)
+    global fisica 
+    fisica = 1
+    return CHOOSING
+
+
+def mental_done(update, context):
+    
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Enhorabuena, has terminado la prueba Mental!',reply_markup=markup)
+    global mental 
+    mental = 1
+    return CHOOSING
+
+def sabiduria_done(update, context):
+    
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Enhorabuena, has terminado la prueba de Sabiduria!',reply_markup=markup)
+    global sabiduria 
+    sabiduria = 1
+    return CHOOSING
+def final_done(update, context):
+    
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Enhorabuena, has terminado la prueba Final!',reply_markup=markup)
+    global final 
+    final = 1
+    return CHOOSING
+
+def easter_egg(update, context): 
+    update.message.reply_text('¡¡QUE ME COMAS TOL PEPINO!!',reply_markup=markup)
+    return CHOOSING
+
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -133,16 +170,16 @@ def main():
     updater = Updater("1394405549:AAGaWqylz6KTbdEpUYckUKR_dKrhGlO55lk", use_context=True)
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-    Age = 0
+
+   
     # Add conversation handler with the states CHOOSING, TYPING_CHOICE and TYPING_REPLY
+
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
 
         states={
-            CHOOSING: [MessageHandler(Filters.regex('^(Acertijo|Prueba Mental|Prueba Final)$'),
-                                      regular_choice),
-                       MessageHandler(Filters.regex('^Acertijo$'),
-                                      custom_choice_acertijo),
+            CHOOSING: [MessageHandler(Filters.regex('^Prueba de Sabiduria$'),
+                                      custom_choice_sabiduria),
                        MessageHandler(Filters.regex('^Prueba Fisica$'),
                                       custom_choice_fisica) ,
                        MessageHandler(Filters.regex('^Prueba Mental$'),
@@ -151,8 +188,11 @@ def main():
                                       custom_choice_final)                                    
                        ],
             TYPING_CHOICE: [
-                MessageHandler(Filters.text & ~(Filters.command | Filters.regex('^Hecho$')),
-                               regular_choice)],
+                       MessageHandler(Filters.regex('^Ayuda$'),
+                                      custom_choice_ayuda) ,
+                       MessageHandler(Filters.regex('^Apañao$'),
+                                      custom_choice_hecho)                                       
+                               ],
 
             TYPING_REPLY: [
                 MessageHandler(Filters.text & ~(Filters.command | Filters.regex('^Finalizado$')),
@@ -163,6 +203,11 @@ def main():
     )
 
     dp.add_handler(conv_handler)
+    dp.add_handler(CommandHandler("vinagre", fisica_done))
+    dp.add_handler(CommandHandler("cohelo", mental_done))
+    dp.add_handler(CommandHandler("Nacho", sabiduria_done))
+    dp.add_handler(CommandHandler("Felicidades", final_done))
+    dp.add_handler(CommandHandler("asundino", easter_egg))
 
     # Start the Bot
     updater.start_polling()
