@@ -21,7 +21,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 
 
-fisica = 1
+fisica = 0
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -32,7 +32,7 @@ CHOOSING, TYPING_REPLY, TYPING_CHOICE = range(3)
 
 reply_keyboard = [['Acertijo', 'Prueba Fisica'],
                   ['Prueba Mental','Prueba Final'],
-                  ['Done']]
+                  ['Finalizadas todas las pruebas']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
 
@@ -114,13 +114,13 @@ def received_information(update, context):
 
 
 def done(update, context):
-    user_data = context.user_data
-    if 'choice' in user_data:
-        del user_data['choice']
 
-    update.message.reply_text("I learned these facts about you:"
-                              "{}"
-                              "Until next time!".format(facts_to_str(user_data)))
+    if fisica == 1:
+        update.message.reply_text('Enhorabuena, has superado las pruebas, para celebrarlo vamos a tomar algo hasta el gran Capitán, te lo has ganado CRACK!!!')
+        return ConversationHandler.END
+    else : 
+        update.message.reply_text('¿Donde vas crack?, todavía te quedan cosas por hacer.')
+        return CHOOSING
 
    # user_data.clear()
     return ConversationHandler.END
@@ -151,15 +151,15 @@ def main():
                                       custom_choice_final)                                    
                        ],
             TYPING_CHOICE: [
-                MessageHandler(Filters.text & ~(Filters.command | Filters.regex('^Done$')),
+                MessageHandler(Filters.text & ~(Filters.command | Filters.regex('^Hecho$')),
                                regular_choice)],
 
             TYPING_REPLY: [
-                MessageHandler(Filters.text & ~(Filters.command | Filters.regex('^Done$')),
+                MessageHandler(Filters.text & ~(Filters.command | Filters.regex('^Finalizado$')),
                                received_information)],
         },
 
-        fallbacks=[MessageHandler(Filters.regex('^Done$'), done)]
+        fallbacks=[MessageHandler(Filters.regex('^Finalizadas todas las pruebas$'), done)]
     )
 
     dp.add_handler(conv_handler)
